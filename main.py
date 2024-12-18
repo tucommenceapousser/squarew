@@ -10,16 +10,19 @@ app.secret_key = "tesla_secret_key"  # Pour gérer les messages flash
 
 UPLOAD_FOLDER = "uploads"
 OUTPUT_FOLDER = "output"
+
+# Créez les dossiers pour stocker les fichiers uploadés et les fichiers de sortie
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 @app.route("/")
 def home():
+    """Route principale pour afficher le formulaire."""
     return render_template("index.html")
 
 @app.route("/upload", methods=["POST"])
 def upload_files():
-    # Vérifier si des fichiers sont uploadés
+    """Gestion de l'upload et conversion des fichiers MP3 en square wave."""
     if "files" not in request.files:
         flash("Aucun fichier sélectionné !", "error")
         return redirect(url_for("home"))
@@ -32,11 +35,11 @@ def upload_files():
     output_files = []
     for file in files:
         try:
-            # Sauvegarder le fichier uploadé
+            # Sauvegarde le fichier uploadé
             input_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(input_path)
 
-            # Convertir en square wave
+            # Convertit le fichier MP3 en square wave
             output_filename = os.path.splitext(file.filename)[0] + "_square_wave.wav"
             output_path = os.path.join(OUTPUT_FOLDER, output_filename)
             convert_to_square_wave(input_path, output_path)
@@ -48,7 +51,7 @@ def upload_files():
         flash("Aucun fichier n'a pu être traité.", "error")
         return redirect(url_for("home"))
 
-    # Créer une archive ZIP
+    # Création d'une archive ZIP contenant tous les fichiers convertis
     zip_path = os.path.join(OUTPUT_FOLDER, "square_wave_files.zip")
     with zipfile.ZipFile(zip_path, "w") as zipf:
         for output_file in output_files:
@@ -58,23 +61,25 @@ def upload_files():
     return send_file(zip_path, as_attachment=True)
 
 def convert_to_square_wave(input_file, output_file):
-    # Convertir MP3 en WAV
+    """Convertit un fichier MP3 en square wave et sauvegarde en WAV."""
+    # Charge le fichier MP3 et le convertit en mono WAV
     audio = AudioSegment.from_mp3(input_file)
-    audio = audio.set_channels(1)  # Mono pour simplifier
+    audio = audio.set_channels(1)  # Mono
     audio = audio.set_frame_rate(44100)
     samples = np.array(audio.get_array_of_samples())
 
-    # Normaliser les échantillons entre -1 et 1
+    # Normalise les échantillons entre -1 et 1
     samples = samples / np.max(np.abs(samples), axis=0)
 
-    # Transformer en square wave
+    # Transforme en square wave
     square_wave = np.sign(samples)
 
-    # Convertir en entier 16 bits pour WAV
+    # Convertit en entier 16 bits pour le format WAV
     square_wave = np.int16(square_wave * 32767)
 
-    # Sauvegarder en WAV
+    # Sauvegarde en WAV
     write(output_file, 44100, square_wave)
 
 if __name__ == "__main__":
+    # Lance l'application Flask
     app.run(debug=False, host="0.0.0.0", port=8080)
