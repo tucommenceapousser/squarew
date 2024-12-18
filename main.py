@@ -77,4 +77,4 @@ def convert_to_square_wave(input_file, output_file):
     write(output_file, 44100, square_wave)
 
 if __name__ == "__main__":
-    app.run(debug=, host="0.0.0.0", port=8080)
+    app.run(debug=False, host="0.0.0.0", port=8080)
