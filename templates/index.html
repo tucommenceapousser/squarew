@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tesla Square Wave Converter : Transformez vos fichiers MP3 en square wave music pour bobines Tesla musicales. Téléchargez vos fichiers MP3, convertissez-les et récupérez-les en un clic !">
+    <meta name="description" content="Tesla Square Wave Converter : Transformez vos fichiers MP3 en square wave music pour bobines Tesla musicales.">
     <meta name="keywords" content="Tesla, Square Wave, Convertisseur, MP3, Musique Tesla, Bobine Tesla, Audio, Squarewave Music">
     <meta name="author" content="trhacknon">
     <meta property="og:title" content="Tesla Square Wave Converter">
-    <meta property="og:description" content="Transformez vos MP3 en musique square wave, idéale pour bobines Tesla. Interface moderne et compression ZIP incluse.">
+    <meta property="og:description" content="Transformez vos MP3 en musique square wave, idéale pour bobines Tesla.">
     <meta property="og:image" content="https://a.top4top.io/p_3273813i90.jpg">
     <meta property="og:url" content="https://squarewave-convert.onrender.com">
     <meta name="twitter:card" content="summary_large_image">
@@ -45,6 +45,7 @@
             color: #00ffcc;
             border: 1px solid #00ffcc;
             border-radius: 5px;
+            width: 70%;
         }
         button {
             padding: 10px 20px;
@@ -62,6 +63,8 @@
             margin: 20px;
             padding: 15px;
             border-radius: 5px;
+            text-align: left;
+            display: inline-block;
         }
         .flash.error {
             background-color: #ff3333;
@@ -92,10 +95,10 @@
     <h1>Tesla Square Wave Converter</h1>
     <img src="https://a.top4top.io/p_3273813i90.jpg" alt="Tesla Coil" class="tesla-image" width="300">
     <p>
-        Bienvenue sur le **Tesla Square Wave Converter**, votre outil ultime pour convertir vos fichiers MP3 en square wave music, parfaite pour les bobines Tesla musicales. 🎵✨
+        Bienvenue sur le <strong>Tesla Square Wave Converter</strong>, votre outil ultime pour convertir vos fichiers MP3 en musique square wave, idéale pour les bobines Tesla musicales. 🎵✨
     </p>
     <p>
-        Téléchargez un ou plusieurs fichiers MP3, et laissez notre système transformer vos sons en signaux carrés, idéal pour produire des arcs électriques synchronisés avec votre musique.
+        Téléchargez un ou plusieurs fichiers MP3, et laissez notre système transformer vos sons en signaux carrés, parfaits pour produire des arcs électriques synchronisés avec votre musique.
     </p>
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -110,8 +113,10 @@
             <br>
             <button type="submit">Convertir en Square Wave</button>
         </form>
+        <br>
+        <p style="color: #00ffcc;">Besoin d'aide ? <a href="#footer">Contactez-nous.</a></p>
     </div>
-    <footer>
+    <footer id="footer">
         Développé avec ❤️ par <a href="https://github.com/trhacknon" target="_blank">trhacknon</a>. <br>
         <a href="https://squarewave-convert.onrender.com">Retour à l'accueil</a>
     </footer>
