@@ -1,10 +1,13 @@
 import os
-from flask import Flask, render_template, request, send_file
+import zipfile
+from flask import Flask, render_template, request, send_file, flash, redirect, url_for
 from pydub import AudioSegment
 import numpy as np
 from scipy.io.wavfile import write
 
 app = Flask(__name__)
+app.secret_key = "tesla_secret_key"  # Pour gérer les messages flash
+
 UPLOAD_FOLDER = "uploads"
 OUTPUT_FOLDER = "output"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -15,24 +18,44 @@ def home():
     return render_template("index.html")
 
 @app.route("/upload", methods=["POST"])
-def upload_file():
-    if "file" not in request.files:
-        return "No file uploaded", 400
+def upload_files():
+    # Vérifier si des fichiers sont uploadés
+    if "files" not in request.files:
+        flash("Aucun fichier sélectionné !", "error")
+        return redirect(url_for("home"))
 
-    file = request.files["file"]
-    if file.filename == "":
-        return "No file selected", 400
+    files = request.files.getlist("files")
+    if not files or files[0].filename == "":
+        flash("Aucun fichier valide sélectionné !", "error")
+        return redirect(url_for("home"))
 
-    # Sauvegarde du fichier uploadé
-    input_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(input_path)
+    output_files = []
+    for file in files:
+        try:
+            # Sauvegarder le fichier uploadé
+            input_path = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(input_path)
 
-    # Transformation en square wave
-    output_filename = os.path.splitext(file.filename)[0] + "_square_wave.wav"
-    output_path = os.path.join(OUTPUT_FOLDER, output_filename)
-    convert_to_square_wave(input_path, output_path)
+            # Convertir en square wave
+            output_filename = os.path.splitext(file.filename)[0] + "_square_wave.wav"
+            output_path = os.path.join(OUTPUT_FOLDER, output_filename)
+            convert_to_square_wave(input_path, output_path)
+            output_files.append(output_path)
+        except Exception as e:
+            flash(f"Erreur lors du traitement du fichier {file.filename} : {e}", "error")
 
-    return send_file(output_path, as_attachment=True)
+    if not output_files:
+        flash("Aucun fichier n'a pu être traité.", "error")
+        return redirect(url_for("home"))
+
+    # Créer une archive ZIP
+    zip_path = os.path.join(OUTPUT_FOLDER, "square_wave_files.zip")
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for output_file in output_files:
+            zipf.write(output_file, os.path.basename(output_file))
+
+    flash("Fichiers convertis avec succès ! Vous pouvez les télécharger ci-dessous.", "success")
+    return send_file(zip_path, as_attachment=True)
 
 def convert_to_square_wave(input_file, output_file):
     # Convertir MP3 en WAV
@@ -54,4 +77,4 @@ def convert_to_square_wave(input_file, output_file):
     write(output_file, 44100, square_wave)
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0")
+    app.run(debug=, host="0.0.0.0", port=8080)
